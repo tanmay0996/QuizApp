@@ -1,20 +1,18 @@
 // src/Pages/QuizPage.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 
-// Example questions array
-const questions = [
+const questionsData = [
   {
     question: 'Which of the following is the major element in earth crust?',
     options: ['Silicon', 'Oxygen', 'Iron', 'Aluminium'],
-    answerIndex: 1, // let's assume the correct answer is "Oxygen"
+    correctIndex: 1,
   },
   {
     question: 'Which planet is known as the Red Planet?',
     options: ['Earth', 'Mars', 'Jupiter', 'Venus'],
-    answerIndex: 1, // "Mars"
+    correctIndex: 1,
   },
-  // Add more questions as needed
 ];
 
 function QuizPage() {
@@ -22,116 +20,149 @@ function QuizPage() {
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(null);
   const [timeLeft, setTimeLeft] = useState(30);
 
-  // Countdown timer effect
   useEffect(() => {
     if (timeLeft <= 0) {
       handleNextQuestion();
       return;
     }
-
     const timerId = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
     }, 1000);
-
     return () => clearInterval(timerId);
   }, [timeLeft]);
 
-  // Handle user clicking an option
+  const currentQuestion = questionsData[currentQuestionIndex];
+
   const handleOptionClick = (index) => {
     setSelectedOptionIndex(index);
   };
 
-  // Move to the next question (resets timer, etc.)
   const handleNextQuestion = () => {
     setSelectedOptionIndex(null);
     setTimeLeft(30);
     setCurrentQuestionIndex((prev) => prev + 1);
   };
 
-  // If we've reached the end of the questions
-  if (currentQuestionIndex >= questions.length) {
+  if (currentQuestionIndex >= questionsData.length) {
     return (
       <Box
         sx={{
-          backgroundColor: '#2D3251',
-          color: '#FFFFFF',
-          width: '400px',
-          padding: '2rem',
-          borderRadius: '8px',
           textAlign: 'center',
-          margin: '2rem auto',
-          boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
+          color: '#fff',
+          marginTop: '5rem',
         }}
       >
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h4" gutterBottom>
           Quiz Completed!
         </Typography>
-        {/* You can show results or summary here */}
       </Box>
     );
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
-
   return (
     <Box
       sx={{
-        backgroundColor: '#2D3251',
-        color: '#FFFFFF',
-        width: '600px',
+        minHeight: '100vh',
+        width: '100vw',
+        background: 'linear-gradient(135deg, #A9D1F7 0%, #D0E6FF 100%)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         padding: '2rem',
-        borderRadius: '8px',
-        textAlign: 'center',
-        margin: '2rem auto',
-        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
-        position: 'relative',
       }}
     >
-      <Typography variant="h6" gutterBottom>
-        Question {currentQuestionIndex + 1}/{questions.length}
-      </Typography>
-
-      <Typography variant="subtitle1" gutterBottom>
-        {currentQuestion.question}
-      </Typography>
-
-      {/* Timer in the top-right corner */}
-      <Typography
-        variant="h5"
-        sx={{ position: 'absolute', top: '20px', right: '30px' }}
-      >
-        {timeLeft}
-      </Typography>
-
       <Box
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem',
-          marginTop: '2rem',
+          width: '800px',              // Increase width to fit question + options side by side
+          backgroundColor: '#2D3251',
+          borderRadius: '16px',
+          color: '#FFFFFF',
+          padding: '2rem',
+          boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
+          position: 'relative',
         }}
       >
-        {currentQuestion.options.map((option, index) => (
-          <Button
-            key={index}
-            variant={selectedOptionIndex === index ? 'contained' : 'outlined'}
-            color="secondary"
-            onClick={() => handleOptionClick(index)}
-            sx={{ textAlign: 'left', justifyContent: 'flex-start' }}
-          >
-            {option}
-          </Button>
-        ))}
-      </Box>
+        {/* Top bar: Question number (left) & Timer (right) */}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '1.5rem',
+          }}
+        >
+          <Typography variant="subtitle1">
+            Question {currentQuestionIndex + 1}/{questionsData.length}
+          </Typography>
+          <Typography variant="h6">{timeLeft}</Typography>
+        </Box>
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleNextQuestion}
-        sx={{ marginTop: '2rem' }}
-      >
-        Next
-      </Button>
+        {/* Main content area: Question on the left, Options on the right */}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            gap: '2rem',      // Space between question text & options
+          }}
+        >
+          {/* Left side: question text */}
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h5" gutterBottom>
+              {currentQuestion.question}
+            </Typography>
+          </Box>
+
+          {/* Right side: options */}
+          <Box sx={{ flex: 1 }}>
+            {currentQuestion.options.map((option, index) => {
+              const isSelected = selectedOptionIndex === index;
+              return (
+                <Button
+                  key={index}
+                  onClick={() => handleOptionClick(index)}
+                  sx={{
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'left',
+                    marginBottom: '1rem',
+                    borderRadius: '24px',
+                    border: '2px solid #546386',
+                    backgroundColor: isSelected ? '#546386' : 'transparent',
+                    color: '#FFFFFF',
+                    transition: 'background-color 0.2s ease',
+                    '&:hover': {
+                      backgroundColor: isSelected
+                        ? '#546386'
+                        : 'rgba(84, 99, 134, 0.3)',
+                    },
+                  }}
+                >
+                  {option}
+                </Button>
+              );
+            })}
+          </Box>
+        </Box>
+
+        {/* Next button (bottom-right) */}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2rem' }}>
+          <Button
+            variant="contained"
+            onClick={handleNextQuestion}
+            sx={{
+              backgroundColor: '#9C4DFF',
+              borderRadius: '20px',
+              padding: '0.5rem 2rem',
+              '&:hover': {
+                backgroundColor: '#7A3ACC',
+              },
+            }}
+          >
+            Next
+          </Button>
+        </Box>
+      </Box>
     </Box>
   );
 }
