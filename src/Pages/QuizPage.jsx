@@ -1,23 +1,11 @@
-// src/Pages/QuizPage.jsx
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button } from '@mui/material';
-
-const questionsData = [
-  {
-    question: 'Which of the following is the major element in earth crust?',
-    options: ['Silicon', 'Oxygen', 'Iron', 'Aluminium'],
-    correctIndex: 1,
-  },
-  {
-    question: 'Which planet is known as the Red Planet?',
-    options: ['Earth', 'Mars', 'Jupiter', 'Venus'],
-    correctIndex: 1,
-  },
-];
+import { Box, Typography, Button, TextField } from '@mui/material';
+import quizData from '../data/quiz.json';
 
 function QuizPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(null);
+  const [integerAnswer, setIntegerAnswer] = useState('');
   const [timeLeft, setTimeLeft] = useState(30);
 
   useEffect(() => {
@@ -31,30 +19,30 @@ function QuizPage() {
     return () => clearInterval(timerId);
   }, [timeLeft]);
 
-  const currentQuestion = questionsData[currentQuestionIndex];
+  const currentQuestion = quizData[currentQuestionIndex];
 
   const handleOptionClick = (index) => {
     setSelectedOptionIndex(index);
   };
 
+  const handleInputChange = (e) => {
+    setIntegerAnswer(e.target.value);
+  };
+
   const handleNextQuestion = () => {
     setSelectedOptionIndex(null);
+    setIntegerAnswer('');
     setTimeLeft(30);
     setCurrentQuestionIndex((prev) => prev + 1);
   };
 
-  if (currentQuestionIndex >= questionsData.length) {
+  if (currentQuestionIndex >= quizData.length) {
     return (
-      <Box
-        sx={{
-          textAlign: 'center',
-          color: '#fff',
-          marginTop: '5rem',
-        }}
-      >
+      <Box sx={{ textAlign: 'center', color: '#fff', marginTop: '5rem' }}>
         <Typography variant="h4" gutterBottom>
           Quiz Completed!
         </Typography>
+        {/* Optionally display results here */}
       </Box>
     );
   }
@@ -63,7 +51,7 @@ function QuizPage() {
     <Box
       sx={{
         minHeight: '100vh',
-        width: '100vw',
+        width: '100%',
         background: 'linear-gradient(135deg, #A9D1F7 0%, #D0E6FF 100%)',
         display: 'flex',
         justifyContent: 'center',
@@ -73,7 +61,7 @@ function QuizPage() {
     >
       <Box
         sx={{
-          width: '800px',              // Increase width to fit question + options side by side
+          width: '800px',
           backgroundColor: '#2D3251',
           borderRadius: '16px',
           color: '#FFFFFF',
@@ -82,7 +70,7 @@ function QuizPage() {
           position: 'relative',
         }}
       >
-        {/* Top bar: Question number (left) & Timer (right) */}
+        {/* Top bar: Question number & Timer */}
         <Box
           sx={{
             display: 'flex',
@@ -92,60 +80,86 @@ function QuizPage() {
           }}
         >
           <Typography variant="subtitle1">
-            Question {currentQuestionIndex + 1}/{questionsData.length}
+            Question {currentQuestionIndex + 1}/{quizData.length}
           </Typography>
           <Typography variant="h6">{timeLeft}</Typography>
         </Box>
 
-        {/* Main content area: Question on the left, Options on the right */}
+        {/* Main content area: Question on the left, Answer input on the right */}
         <Box
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'flex-start',
-            gap: '2rem',      // Space between question text & options
+            gap: '2rem',
           }}
         >
-          {/* Left side: question text */}
+          {/* Left side: Question text */}
           <Box sx={{ flex: 1 }}>
             <Typography variant="h5" gutterBottom>
               {currentQuestion.question}
             </Typography>
           </Box>
 
-          {/* Right side: options */}
+          {/* Right side: Answer area */}
           <Box sx={{ flex: 1 }}>
-            {currentQuestion.options.map((option, index) => {
-              const isSelected = selectedOptionIndex === index;
-              return (
-                <Button
-                  key={index}
-                  onClick={() => handleOptionClick(index)}
-                  sx={{
-                    display: 'block',
-                    width: '100%',
-                    textAlign: 'left',
-                    marginBottom: '1rem',
-                    borderRadius: '24px',
-                    border: '2px solid #546386',
-                    backgroundColor: isSelected ? '#546386' : 'transparent',
-                    color: '#FFFFFF',
-                    transition: 'background-color 0.2s ease',
-                    '&:hover': {
-                      backgroundColor: isSelected
-                        ? '#546386'
-                        : 'rgba(84, 99, 134, 0.3)',
+            {currentQuestion.type === 'mcq' ? (
+              // Render options for MCQ
+              currentQuestion.options.map((option, index) => {
+                const isSelected = selectedOptionIndex === index;
+                return (
+                  <Button
+                    key={index}
+                    onClick={() => handleOptionClick(index)}
+                    sx={{
+                      display: 'block',
+                      width: '100%',
+                      textAlign: 'left',
+                      marginBottom: '1rem',
+                      borderRadius: '24px',
+                      border: '2px solid #546386',
+                      backgroundColor: isSelected ? '#546386' : 'transparent',
+                      color: '#FFFFFF',
+                      transition: 'background-color 0.2s ease',
+                      '&:hover': {
+                        backgroundColor: isSelected
+                          ? '#546386'
+                          : 'rgba(84, 99, 134, 0.3)',
+                      },
+                    }}
+                  >
+                    {option}
+                  </Button>
+                );
+              })
+            ) : (
+              // Render input for integer type question
+              <TextField
+                label="Your Answer"
+                variant="outlined"
+                value={integerAnswer}
+                onChange={handleInputChange}
+                sx={{
+                  input: { color: '#fff' },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#546386',
                     },
-                  }}
-                >
-                  {option}
-                </Button>
-              );
-            })}
+                    '&:hover fieldset': {
+                      borderColor: '#9C4DFF',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#9C4DFF',
+                    },
+                  },
+                  width: '100%',
+                }}
+              />
+            )}
           </Box>
         </Box>
 
-        {/* Next button (bottom-right) */}
+        {/* Next button */}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2rem' }}>
           <Button
             variant="contained"
