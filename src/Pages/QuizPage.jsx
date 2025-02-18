@@ -1,12 +1,15 @@
+// src/Pages/QuizPage.jsx
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, TextField } from '@mui/material';
 import quizData from '../data/quiz.json';
+import ScoreCard from '../Components/ScoreCard'; // Import the ScoreCard
 
 function QuizPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(null);
   const [integerAnswer, setIntegerAnswer] = useState('');
   const [timeLeft, setTimeLeft] = useState(30);
+  const [userAnswers, setUserAnswers] = useState([]);
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -30,28 +33,32 @@ function QuizPage() {
   };
 
   const handleNextQuestion = () => {
+    let answer;
+    if (currentQuestion && currentQuestion.type === 'mcq') {
+      answer = selectedOptionIndex;
+    } else {
+      answer = integerAnswer;
+    }
+
+    setUserAnswers((prevAnswers) => [...prevAnswers, answer]);
+
+    // Reset states for next question
     setSelectedOptionIndex(null);
     setIntegerAnswer('');
     setTimeLeft(30);
     setCurrentQuestionIndex((prev) => prev + 1);
   };
 
+  // If quiz is completed, display the ScoreCard
   if (currentQuestionIndex >= quizData.length) {
-    return (
-      <Box sx={{ textAlign: 'center', color: '#fff', marginTop: '5rem' }}>
-        <Typography variant="h4" gutterBottom>
-          Quiz Completed!
-        </Typography>
-        {/* Optionally display results here */}
-      </Box>
-    );
+    return <ScoreCard quizData={quizData} userAnswers={userAnswers} />;
   }
 
   return (
     <Box
       sx={{
         minHeight: '100vh',
-        width: '100%',
+        width: '100vw',
         background: 'linear-gradient(135deg, #A9D1F7 0%, #D0E6FF 100%)',
         display: 'flex',
         justifyContent: 'center',
@@ -85,7 +92,7 @@ function QuizPage() {
           <Typography variant="h6">{timeLeft}</Typography>
         </Box>
 
-        {/* Main content area: Question on the left, Answer input on the right */}
+        {/* Main content: Question text on left, Answer area on right */}
         <Box
           sx={{
             display: 'flex',
@@ -104,7 +111,6 @@ function QuizPage() {
           {/* Right side: Answer area */}
           <Box sx={{ flex: 1 }}>
             {currentQuestion.type === 'mcq' ? (
-              // Render options for MCQ
               currentQuestion.options.map((option, index) => {
                 const isSelected = selectedOptionIndex === index;
                 return (
@@ -133,7 +139,6 @@ function QuizPage() {
                 );
               })
             ) : (
-              // Render input for integer type question
               <TextField
                 label="Your Answer"
                 variant="outlined"
@@ -142,15 +147,9 @@ function QuizPage() {
                 sx={{
                   input: { color: '#fff' },
                   '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderColor: '#546386',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#9C4DFF',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#9C4DFF',
-                    },
+                    '& fieldset': { borderColor: '#546386' },
+                    '&:hover fieldset': { borderColor: '#9C4DFF' },
+                    '&.Mui-focused fieldset': { borderColor: '#9C4DFF' },
                   },
                   width: '100%',
                 }}
