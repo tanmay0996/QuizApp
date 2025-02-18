@@ -1,16 +1,20 @@
-import React from 'react';
-import StartPage from './Pages/LandingPage';
+// src/App.jsx
+import React, { useState } from 'react';
+import LandingPage from './Pages/LandingPage';
+import QuizPage from './Pages/QuizPage';
+import './App.css'; // if you want custom global styling
 
 function App() {
-  const handleQuizStart = (timeInSeconds) => {
-    console.log("Quiz starting with total time:", timeInSeconds);
-    // You can navigate to the quiz page or set quiz state here
-  };
+  const [quizStarted, setQuizStarted] = useState(false);
 
   return (
-    <div style={{ background: '#a0d2eb', height: '100vh', padding: '2rem',width:'100vw' }}>
-      <StartPage onStart={handleQuizStart} />
-    </div>
+    <>
+      {quizStarted ? (
+        <QuizPage />
+      ) : (
+        <LandingPage onStartQuiz={() => setQuizStarted(true)} />
+      )}
+    </>
   );
 }
 

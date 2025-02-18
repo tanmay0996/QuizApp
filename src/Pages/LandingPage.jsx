@@ -1,31 +1,18 @@
-import React, { useState } from 'react';
-import { Box, Typography, Button, TextField } from '@mui/material';
+// src/Pages/LandingPage.jsx
+import React from 'react';
+import { Box, Typography, Button } from '@mui/material';
 
-function StartPage({ onStart }) {
-  // State for minute and second inputs
-  const [minutes, setMinutes] = useState(1);
-  const [seconds, setSeconds] = useState(0);
-
-  const handleStart = () => {
-    // Convert total time to seconds, pass to parent or handle logic
-    const totalTimeInSeconds = minutes * 60 + seconds;
-    if (onStart) {
-      onStart(totalTimeInSeconds);
-    } else {
-      alert(`Starting quiz with ${minutes} minute(s) and ${seconds} second(s).`);
-    }
-  };
-
+function LandingPage({ onStartQuiz }) {
   return (
     <Box
       sx={{
-        backgroundColor: '#2D3251',  // Example background color
+        backgroundColor: '#2D3251',
         color: '#FFFFFF',
-        width: '500px',
+        width: '400px',
         padding: '2rem',
         borderRadius: '8px',
         textAlign: 'center',
-        margin: '2rem auto',         // Center horizontally with margin
+        margin: '2rem auto',
         boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
       }}
     >
@@ -37,43 +24,10 @@ function StartPage({ onStart }) {
         Good luck!
       </Typography>
 
-      <Typography variant="body2" gutterBottom>
-        Time: 60sec (example placeholder)
-      </Typography>
-
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '1rem',
-          marginTop: '1rem',
-          marginBottom: '1rem',
-        }}
-      >
-        <TextField
-          label="Minutes"
-          type="number"
-          value={minutes}
-          onChange={(e) => setMinutes(Number(e.target.value))}
-          variant="outlined"
-          sx={{ width: '80px' }}
-          inputProps={{ min: 0 }}
-        />
-        <TextField
-          label="Seconds"
-          type="number"
-          value={seconds}
-          onChange={(e) => setSeconds(Number(e.target.value))}
-          variant="outlined"
-          sx={{ width: '80px' }}
-          inputProps={{ min: 0, max: 59 }}
-        />
-      </Box>
-
       <Button 
         variant="contained" 
-        color="secondary" 
-        onClick={handleStart}
+        color="secondary"
+        onClick={onStartQuiz}
       >
         START
       </Button>
@@ -81,4 +35,4 @@ function StartPage({ onStart }) {
   );
 }
 
-export default StartPage;
+export default LandingPage;
