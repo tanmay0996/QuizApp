@@ -15,9 +15,9 @@ Local Setup
 
 **1.Clone the Repository**
    
-  git clone <repository_url>
+  git clone https://github.com/tanmay0996/QuizApp.git
 
-  cd <repository_folder>
+  cd quizApp
 
 **2.Install Dependencies**
 
