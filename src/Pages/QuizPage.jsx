@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, TextField } from '@mui/material';
 import quizData from '../data/quiz.json';
-import ScoreCard from '../Components/ScoreCard'; // Import the ScoreCard
+import { useNavigate } from 'react-router-dom';
 
 function QuizPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -10,6 +10,8 @@ function QuizPage() {
   const [integerAnswer, setIntegerAnswer] = useState('');
   const [timeLeft, setTimeLeft] = useState(30);
   const [userAnswers, setUserAnswers] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -39,9 +41,7 @@ function QuizPage() {
     } else {
       answer = integerAnswer;
     }
-
     setUserAnswers((prevAnswers) => [...prevAnswers, answer]);
-
     // Reset states for next question
     setSelectedOptionIndex(null);
     setIntegerAnswer('');
@@ -49,9 +49,16 @@ function QuizPage() {
     setCurrentQuestionIndex((prev) => prev + 1);
   };
 
-  // If quiz is completed, display the ScoreCard
+  // When quiz is complete, navigate to the ScoreCard route
+  useEffect(() => {
+    if (currentQuestionIndex >= quizData.length) {
+      navigate('/scorecard', { state: { quizData, userAnswers } });
+    }
+  }, [currentQuestionIndex, navigate, userAnswers]);
+
+  // While waiting for navigation, you can return null or a loader
   if (currentQuestionIndex >= quizData.length) {
-    return <ScoreCard quizData={quizData} userAnswers={userAnswers} />;
+    return null;
   }
 
   return (
