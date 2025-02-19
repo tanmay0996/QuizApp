@@ -10,6 +10,7 @@ function QuizPage() {
   const [integerAnswer, setIntegerAnswer] = useState('');
   const [timeLeft, setTimeLeft] = useState(30);
   const [userAnswers, setUserAnswers] = useState([]);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   const navigate = useNavigate();
 
@@ -27,7 +28,9 @@ function QuizPage() {
   const currentQuestion = quizData[currentQuestionIndex];
 
   const handleOptionClick = (index) => {
-    setSelectedOptionIndex(index);
+    if (!showFeedback) {
+      setSelectedOptionIndex(index);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -35,28 +38,34 @@ function QuizPage() {
   };
 
   const handleNextQuestion = () => {
-    let answer;
-    if (currentQuestion && currentQuestion.type === 'mcq') {
-      answer = selectedOptionIndex;
+    if (currentQuestion.type === 'mcq') {
+      setShowFeedback(true);
+      // Delay moving to next question so the user can see the feedback.
+      setTimeout(() => {
+        setUserAnswers((prev) => [...prev, selectedOptionIndex]);
+        // Reset states for the next question.
+        setSelectedOptionIndex(null);
+        setIntegerAnswer('');
+        setTimeLeft(30);
+        setShowFeedback(false);
+        setCurrentQuestionIndex((prev) => prev + 1);
+      }, 1500); // 1.5-second delay
     } else {
-      answer = integerAnswer;
+      setUserAnswers((prev) => [...prev, integerAnswer]);
+      setSelectedOptionIndex(null);
+      setIntegerAnswer('');
+      setTimeLeft(30);
+      setCurrentQuestionIndex((prev) => prev + 1);
     }
-    setUserAnswers((prevAnswers) => [...prevAnswers, answer]);
-    // Reset states for next question
-    setSelectedOptionIndex(null);
-    setIntegerAnswer('');
-    setTimeLeft(30);
-    setCurrentQuestionIndex((prev) => prev + 1);
   };
 
-  // When quiz is complete, navigate to the ScoreCard route
+  // Navigate to ScoreCard when quiz is complete.
   useEffect(() => {
     if (currentQuestionIndex >= quizData.length) {
       navigate('/scorecard', { state: { quizData, userAnswers } });
     }
   }, [currentQuestionIndex, navigate, userAnswers]);
 
-  // While waiting for navigation, you can return null or a loader
   if (currentQuestionIndex >= quizData.length) {
     return null;
   }
@@ -99,7 +108,7 @@ function QuizPage() {
           <Typography variant="h6">{timeLeft}</Typography>
         </Box>
 
-        {/* Main content: Question text on left, Answer area on right */}
+        {/* Main content: Question text and Answer area */}
         <Box
           sx={{
             display: 'flex',
@@ -120,10 +129,23 @@ function QuizPage() {
             {currentQuestion.type === 'mcq' ? (
               currentQuestion.options.map((option, index) => {
                 const isSelected = selectedOptionIndex === index;
+                // Default background if selected.
+                let bgColor = isSelected ? '#546386' : 'transparent';
+                if (showFeedback && isSelected) {
+                  // Log for debugging:
+                  console.log(
+                    `Question ${currentQuestionIndex + 1}: Selected option index: ${index}, Correct index: ${currentQuestion.correctIndex}`
+                  );
+                  bgColor =
+                    currentQuestion.correctIndex === index
+                      ? '#4CAF50' // Green for correct answer.
+                      : '#F44336'; // Red for incorrect answer.
+                }
                 return (
                   <Button
                     key={index}
                     onClick={() => handleOptionClick(index)}
+                    disabled={showFeedback} // Disable clicking during feedback.
                     sx={{
                       display: 'block',
                       width: '100%',
@@ -131,7 +153,7 @@ function QuizPage() {
                       marginBottom: '1rem',
                       borderRadius: '24px',
                       border: '2px solid #546386',
-                      backgroundColor: isSelected ? '#546386' : 'transparent',
+                      backgroundColor: bgColor,
                       color: '#FFFFFF',
                       transition: 'background-color 0.2s ease',
                       '&:hover': {
