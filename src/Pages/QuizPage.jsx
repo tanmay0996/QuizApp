@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, TextField } from '@mui/material';
 import quizData from '../data/quiz.json';
 import { useNavigate } from 'react-router-dom';
+import Particles from '../Components/Particles';
 
 function QuizPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -80,8 +81,10 @@ function QuizPage() {
         justifyContent: 'center',
         alignItems: 'center',
         padding: '2rem',
+        position:'relative'
       }}
-    >
+      
+      >
       <Box
         sx={{
           width: '800px',
@@ -91,8 +94,9 @@ function QuizPage() {
           padding: '2rem',
           boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
           position: 'relative',
+          marginBottom:'10%'
         }}
-      >
+        >
         {/* Top bar: Question number & Timer */}
         <Box
           sx={{
@@ -123,6 +127,28 @@ function QuizPage() {
               {currentQuestion.question}
             </Typography>
           </Box>
+          <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 1, // Higher than your content (default z-index is 0)
+          pointerEvents: "none", // Allow clicks to pass through if needed
+        }}
+      >
+        <Particles
+          particleColors={["#ffffff", "#ffffff"]}
+          particleCount={200}
+          particleSpread={10}
+          speed={0.1}
+          particleBaseSize={100}
+          moveParticlesOnHover={true}
+          alphaParticles={false}
+          disableRotation={false}
+        />
+      </Box>
 
           {/* Right side: Answer area */}
           <Box sx={{ flex: 1 }}>
